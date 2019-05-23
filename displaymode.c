@@ -27,6 +27,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
+const char kProgramVersion[] = "displaymode-1.0.0";
+
 // States for the main invocation "option".
 //
 // The enum value of the alphabetical options matches the letter that should
@@ -232,8 +234,9 @@ int main(int argc, const char * argv[]) {
             return PrintModes();
 
         case kOptionVersion:
-            puts("displaymode 1.0\nCopyright 2019 Dean Scarff");
+            printf("%s\nCopyright 2019 Dean Scarff", kProgramVersion);
             return EXIT_SUCCESS;
+
         default:
             break;
     }
