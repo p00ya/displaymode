@@ -132,8 +132,8 @@ int PrintModes() {
             (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, index);
         const size_t width = CGDisplayModeGetWidth(mode);
         const size_t height = CGDisplayModeGetHeight(mode);
-        const char * current = (CFEqual(mode, current_mode)) ? "*" : "";
-        printf("%zu x %zu %s\n", width, height, current);
+        const char * current = (CFEqual(mode, current_mode)) ? " *" : "";
+        printf("%zu x %zu%s\n", width, height, current);
     }
     CFRelease(modes);
     CGDisplayModeRelease(current_mode);
@@ -145,15 +145,15 @@ int PrintModes() {
 // The caller owns the returned mode.
 CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
     CGDirectDisplayID display = CGMainDisplayID();
-    CFArrayRef modeList = CGDisplayCopyAllDisplayModes(display, NULL);
-    const CFIndex count = CFArrayGetCount(modeList);
+    CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
+    const CFIndex count = CFArrayGetCount(modes);
 
     CGDisplayModeRef matched_mode = NULL;
     // Set matched_mode to the first display mode matching the requested
     // resolution.
     for (CFIndex index = 0; index < count; index++) {
         CGDisplayModeRef const mode =
-            (CGDisplayModeRef) CFArrayGetValueAtIndex(modeList, index);
+            (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, index);
         const size_t width = CGDisplayModeGetWidth(mode);
         const size_t height = CGDisplayModeGetHeight(mode);
         if ((int) width == parsed_args->width &&
@@ -162,7 +162,7 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
             break;
         }
     }
-    CFRelease(modeList);
+    CFRelease(modes);
     return matched_mode;
 }
 
