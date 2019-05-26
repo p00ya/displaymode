@@ -27,7 +27,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
-const char kProgramVersion[] = "displaymode-1.0.0";
+// Name and version to display with "v" option.
+const char kProgramVersion[] = "displaymode 1.0.1";
 
 // States for the main invocation "option".
 //
