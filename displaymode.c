@@ -129,9 +129,9 @@ int PrintModes() {
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
     const CFIndex count = CFArrayGetCount(modes);
 
-    for (CFIndex index = 0; index < count; index++) {
+    for (CFIndex i = 0; i < count; ++i) {
         CGDisplayModeRef mode =
-            (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, index);
+            (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, i);
         const size_t width = CGDisplayModeGetWidth(mode);
         const size_t height = CGDisplayModeGetHeight(mode);
         const char * current = (CFEqual(mode, current_mode)) ? " *" : "";
@@ -153,13 +153,13 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
     CGDisplayModeRef matched_mode = NULL;
     // Set matched_mode to the first display mode matching the requested
     // resolution.
-    for (CFIndex index = 0; index < count; index++) {
+    for (CFIndex i = 0; i < count; ++i) {
         CGDisplayModeRef const mode =
-            (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, index);
+            (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, i);
         const size_t width = CGDisplayModeGetWidth(mode);
         const size_t height = CGDisplayModeGetHeight(mode);
-        if ((int) width == parsed_args->width &&
-            (int) height == parsed_args->height) {
+        if (width == parsed_args->width &&
+            height == parsed_args->height) {
             matched_mode = CGDisplayModeRetain(mode);
             break;
         }
@@ -172,7 +172,8 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
 int ConfigureMode(const struct ParsedArgs * parsed_args) {
     CGDisplayModeRef mode = GetModeMatching(parsed_args);
     if (NULL == mode) {
-        fprintf(stderr, "Could not find a mode for resolution %lux%lu", parsed_args->width, parsed_args->height);
+        fprintf(stderr, "Could not find a mode for resolution %lux%lu",
+                parsed_args->width, parsed_args->height);
         return -1;
     }
     CGDirectDisplayID display = CGMainDisplayID();
@@ -215,7 +216,8 @@ int main(int argc, const char * argv[]) {
             break;
 
         case kOptionInvalid:
-            fprintf(stderr, "Invalid option: '%s'\n\n", parsed_args.literal_option);
+            fprintf(stderr, "Invalid option: '%s'\n\n",
+                    parsed_args.literal_option);
             ShowUsage();
             break;
 
@@ -234,7 +236,7 @@ int main(int argc, const char * argv[]) {
             return PrintModes();
 
         case kOptionVersion:
-            printf("%s\nCopyright 2019 Dean Scarff", kProgramVersion);
+            printf("%s\nCopyright 2019 Dean Scarff\n", kProgramVersion);
             return EXIT_SUCCESS;
 
         default:
