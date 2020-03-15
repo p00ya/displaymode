@@ -1,6 +1,6 @@
 // displaymode - a utility for changing the display resolution on Mac OS X.
 //
-// Copyright 2019 Dean Scarff.
+// Copyright 2019, 2020 Dean Scarff.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <MacTypes.h>
 
 // Name and version to display with "v" option.
-const char kProgramVersion[] = "displaymode 1.0.1";
+const char kProgramVersion[] = "displaymode 1.2.0";
 
 // States for the main invocation "option".
 //
