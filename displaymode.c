@@ -26,6 +26,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
+#include <MacTypes.h>
 
 // Name and version to display with "v" option.
 const char kProgramVersion[] = "displaymode 1.0.1";
@@ -121,6 +122,14 @@ void ShowUsage() {
     puts(kUsage);
 }
 
+// Prints the resolution and refresh rate for a display mode.
+void PrintMode(CGDisplayModeRef mode) {
+    const size_t width = CGDisplayModeGetWidth(mode);
+    const size_t height = CGDisplayModeGetHeight(mode);
+    const double refresh_rate = CGDisplayModeGetRefreshRate(mode);
+    printf("%zu x %zu @%.2f", width, height, refresh_rate);
+}
+
 // Prints all display modes for the main display.  Returns 0 on success.
 int PrintModes() {
     CGDirectDisplayID display = CGMainDisplayID();
@@ -130,13 +139,21 @@ int PrintModes() {
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
     const CFIndex count = CFArrayGetCount(modes);
 
+    Boolean has_current = 0;
     for (CFIndex i = 0; i < count; ++i) {
         CGDisplayModeRef mode =
             (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, i);
-        const size_t width = CGDisplayModeGetWidth(mode);
-        const size_t height = CGDisplayModeGetHeight(mode);
-        const char * current = (CFEqual(mode, current_mode)) ? " *" : "";
-        printf("%zu x %zu%s\n", width, height, current);
+        PrintMode(mode);
+        if (CFEqual(mode, current_mode)) {
+            has_current = 1;
+            puts(" *");
+        } else {
+            puts("");
+        }
+    }
+    if (!has_current) {
+        PrintMode(current_mode);
+        puts(" *");
     }
     CFRelease(modes);
     CGDisplayModeRelease(current_mode);
