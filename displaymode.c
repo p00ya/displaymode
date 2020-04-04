@@ -207,7 +207,7 @@ int PrintModesForAllDisplays() {
     }
 
     for (uint32_t i = 0; i < num_displays; ++i) {
-        printf("%sDisplay %u:\n", i == 0 ? "" : "\n", i);
+        printf("%sDisplay %u%s:\n", i == 0 ? "" : "\n", i, i == 0 ? " (MAIN)" : "");
         PrintModes(displays[i]);
     }
 

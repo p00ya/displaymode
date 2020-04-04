@@ -36,8 +36,6 @@ Display 1:
 
 where each row is the width x height in pixels.  `*` indicates the current mode, and `!` indicates modes that are not usable for the desktop.
 
-Display 0 is always the main display.
-
 ## Other options
 
 `./displaymode h` prints a summary of the options.
