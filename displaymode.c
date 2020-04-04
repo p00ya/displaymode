@@ -190,7 +190,7 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
 int ConfigureMode(const struct ParsedArgs * parsed_args) {
     CGDisplayModeRef mode = GetModeMatching(parsed_args);
     if (NULL == mode) {
-        fprintf(stderr, "Could not find a mode for resolution %lux%lu",
+        fprintf(stderr, "Could not find a mode for resolution %lux%lu\n",
                 parsed_args->width, parsed_args->height);
         return -1;
     }
