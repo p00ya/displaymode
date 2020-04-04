@@ -20,6 +20,7 @@
 // Usage (to change the resolution to 1440x900):
 //   displaymode t 1440 900
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,13 +92,34 @@ struct ParsedArgs ParseArgs(int argc, const char * argv[]) {
     // Parse "width height [display]" mode specification.
     if (option == kOptionConfigureMode) {
         if (kArgvHeightIndex <= argc) {
+            errno = 0;
             const unsigned long width =
                 strtoul(argv[kArgvWidthIndex], NULL, 10);
+            if (errno != 0) {
+                fprintf(stderr, "Error parsing width \"%s\": %s\n",
+                        argv[kArgvWidthIndex], strerror(errno));
+                errno = 0;
+                parsed_args.option = kOptionInvalidMode;
+            }
+
             const unsigned long height =
                 strtoul(argv[kArgvHeightIndex], NULL, 10);
+            if (errno != 0) {
+                fprintf(stderr, "Error parsing height \"%s\": %s\n",
+                        argv[kArgvHeightIndex], strerror(errno));
+                errno = 0;
+                parsed_args.option = kOptionInvalidMode;
+            }
+
             if (kArgvDisplayIndex <= argc) {
                 parsed_args.display_index =
                     (uint32_t) strtoul(argv[kArgvDisplayIndex], NULL, 10);
+                if (errno != 0) {
+                    fprintf(stderr, "Error parsing display \"%s\": %s\n",
+                            argv[kArgvDisplayIndex], strerror(errno));
+                    errno = 0;
+                    parsed_args.option = kOptionInvalidMode;
+                }
             } else {
                 parsed_args.display_index = 0;
             }
