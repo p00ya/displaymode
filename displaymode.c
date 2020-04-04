@@ -29,7 +29,7 @@
 #include <MacTypes.h>
 
 // Name and version to display with "v" option.
-const char kProgramVersion[] = "displaymode 1.2.0";
+const char kProgramVersion[] = "displaymode 1.3.0";
 
 // States for the main invocation "option".
 //
@@ -50,7 +50,10 @@ enum {
     kArgvOptionIndex = 1,
     kArgvWidthIndex = 2,
     kArgvHeightIndex = 3,
+    kArgvDisplayIndex = 4,
 };
+
+const uint32_t kMaxDisplays = 32;
 
 // Represents the command-line arguments after parsing.
 struct ParsedArgs {
@@ -58,6 +61,7 @@ struct ParsedArgs {
     const char * literal_option;
     unsigned long width;
     unsigned long height;
+    uint32_t display_index;
 };
 
 // Parses the command-line arguments and returns them.
@@ -84,13 +88,19 @@ struct ParsedArgs ParseArgs(int argc, const char * argv[]) {
             break;
     }
 
-    // Parse "width height" mode specification.
+    // Parse "width height [display]" mode specification.
     if (option == kOptionConfigureMode) {
         if (kArgvHeightIndex <= argc) {
             const unsigned long width =
                 strtoul(argv[kArgvWidthIndex], NULL, 10);
             const unsigned long height =
                 strtoul(argv[kArgvHeightIndex], NULL, 10);
+            if (kArgvDisplayIndex <= argc) {
+                parsed_args.display_index =
+                    (uint32_t) strtoul(argv[kArgvDisplayIndex], NULL, 10);
+            } else {
+                parsed_args.display_index = 0;
+            }
             if (0 < width && 0 < height) {
                 parsed_args.width = width;
                 parsed_args.height = height;
@@ -108,10 +118,10 @@ const char kUsage[] =
     "Usage:\n\n"
     "  displaymode [options...]\n\n"
     "Options:\n"
-    "  t <width> <height>\n"
-    "      sets the main display's resolution to width x height\n\n"
+    "  t <width> <height> [display]\n"
+    "      sets the display's resolution to width x height\n\n"
     "  d\n"
-    "      prints available resolutions for the main display\n\n"
+    "      prints available resolutions for each display\n\n"
     "  h\n"
     "      prints this message\n\n"
     "  v\n"
@@ -131,9 +141,7 @@ void PrintMode(CGDisplayModeRef mode) {
 }
 
 // Prints all display modes for the main display.  Returns 0 on success.
-int PrintModes() {
-    CGDirectDisplayID display = CGMainDisplayID();
-
+int PrintModes(CGDirectDisplayID display) {
     CGDisplayModeRef current_mode = CGDisplayCopyDisplayMode(display);
 
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
@@ -160,11 +168,49 @@ int PrintModes() {
     return EXIT_SUCCESS;
 }
 
+int PrintModesForAllDisplays() {
+    CGDirectDisplayID displays[kMaxDisplays];
+    uint32_t num_displays;
+    CGError e =
+        CGGetActiveDisplayList(kMaxDisplays, &displays[0], &num_displays);
+    if (e) {
+        fprintf(stderr, "CGGetActiveDisplayList CGError: %d\n", e);
+        return e;
+    }
+
+    for (uint32_t i = 0; i < num_displays; ++i) {
+        printf("%sDisplay %u:\n", i == 0 ? "" : "\n", i);
+        PrintModes(displays[i]);
+    }
+
+    return EXIT_SUCCESS;
+}
+
+// Returns the display ID (arbitrary integers) corresponding to the given
+// display index (0-indexed).
+CGError GetDisplayID(uint32_t display_index, CGDirectDisplayID * display) {
+    CGDirectDisplayID displays[kMaxDisplays];
+    uint32_t num_displays;
+    CGError e =
+        CGGetActiveDisplayList(kMaxDisplays, &displays[0], &num_displays);
+    if (e) {
+        fprintf(stderr, "CGGetActiveDisplayList CGError: %d\n", e);
+        return e;
+    }
+    if (num_displays <= display_index) {
+        fprintf(stderr, "Display %u not supported; display must be < %u\n",
+                display_index, num_displays);
+        return kCGErrorRangeCheck;
+    }
+    *display = displays[display_index];
+    return kCGErrorSuccess;
+}
+
 // Returns the first mode whose resolution matches the width and height
 // specified in `parsed_args'.  Returns NULL if no modes matched.
 // The caller owns the returned mode.
-CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
-    CGDirectDisplayID display = CGMainDisplayID();
+CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args,
+                                 const CGDirectDisplayID display) {
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
     const CFIndex count = CFArrayGetCount(modes);
 
@@ -188,13 +234,18 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args) {
 
 // Changes the resolution permanently for the user.
 int ConfigureMode(const struct ParsedArgs * parsed_args) {
-    CGDisplayModeRef mode = GetModeMatching(parsed_args);
+    CGDirectDisplayID display;
+    CGError e;
+    if ((e = GetDisplayID(parsed_args->display_index, &display))) {
+        return e;
+    }
+
+    CGDisplayModeRef mode = GetModeMatching(parsed_args, display);
     if (NULL == mode) {
         fprintf(stderr, "Could not find a mode for resolution %lux%lu\n",
                 parsed_args->width, parsed_args->height);
         return -1;
     }
-    CGDirectDisplayID display = CGMainDisplayID();
 
     // Save the original resolution.
     CGDisplayModeRef original_mode = CGDisplayCopyDisplayMode(display);
@@ -204,7 +255,6 @@ int ConfigureMode(const struct ParsedArgs * parsed_args) {
 
     // Change the resolution.
     CGDisplayConfigRef config;
-    CGError e;
     if ((e = CGBeginDisplayConfiguration(&config))) {
         fprintf(stderr, "CGBeginDisplayConfiguration CGError: %d\n", e);
         return e;
@@ -251,10 +301,10 @@ int main(int argc, const char * argv[]) {
             return EXIT_SUCCESS;
 
         case kOptionSupportedModes:
-            return PrintModes();
+            return PrintModesForAllDisplays();
 
         case kOptionVersion:
-            printf("%s\nCopyright 2019 Dean Scarff\n", kProgramVersion);
+            printf("%s\nCopyright 2019-2020 Dean Scarff\n", kProgramVersion);
             return EXIT_SUCCESS;
 
         default:
