@@ -28,12 +28,15 @@ Display 0:
 2560 x 1600 @60.0Hz *
 1280 x 800 @60.0Hz
 2880 x 1800 @60.0Hz
+640 x 480 @60.0Hz !
 
 Display 1:
 800 x 600 @75.0Hz *
 ```
 
-where each row is the width x height in pixels, with an `*` to indicate the current mode.  Display 0 is always the main display.
+where each row is the width x height in pixels.  `*` indicates the current mode, and `!` indicates modes that are not usable for the desktop.
+
+Display 0 is always the main display.
 
 ## Other options
 
