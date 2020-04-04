@@ -30,7 +30,7 @@
 #include <MacTypes.h>
 
 // Name and version to display with "v" option.
-const char kProgramVersion[] = "displaymode 1.3.0";
+const char kProgramVersion[] = "displaymode 1.3.1";
 
 // States for the main invocation "option".
 //
@@ -91,7 +91,7 @@ void ParseMode(const int argc, const char * argv[],
         parsed_args->option = kOptionInvalidMode;
     }
 
-    if (kArgvDisplayIndex <= argc) {
+    if (kArgvDisplayIndex < argc) {
         parsed_args->display_index =
             (uint32_t) strtoul(argv[kArgvDisplayIndex], NULL, 10);
         if (errno != 0) {
