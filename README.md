@@ -18,9 +18,9 @@ You can get a list of available resolutions by running:
 The output will be a table like:
 
 ```
-2560 x 1600 @60.0 *
-1280 x 800 @60.0
-2880 x 1800 @60.0
+2560 x 1600 @60.0Hz *
+1280 x 800 @60.0Hz
+2880 x 1800 @60.0Hz
 ```
 
 where each row is the width x height in pixels, with an `*` to indicate the current mode.

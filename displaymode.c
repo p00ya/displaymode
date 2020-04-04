@@ -127,7 +127,7 @@ void PrintMode(CGDisplayModeRef mode) {
     const size_t width = CGDisplayModeGetWidth(mode);
     const size_t height = CGDisplayModeGetHeight(mode);
     const double refresh_rate = CGDisplayModeGetRefreshRate(mode);
-    printf("%zu x %zu @%.2f", width, height, refresh_rate);
+    printf("%zu x %zu @%.1fHz", width, height, refresh_rate);
 }
 
 // Prints all display modes for the main display.  Returns 0 on success.
