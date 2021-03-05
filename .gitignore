@@ -1,5 +1,2 @@
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcworkspace/contents.xcworkspacedata
-
+# Specify filepatterns you want git to ignore.
+.DS_Store
