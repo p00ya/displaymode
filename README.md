@@ -43,7 +43,7 @@ You can get a list of active displays and available resolutions by running:
 The output will be a table like:
 
 ```
-Display 0:
+Display 0 (MAIN):
 2560 x 1600 @60.0Hz *
 1280 x 800 @60.0Hz
 2880 x 1800 @60.0Hz
