@@ -2,6 +2,25 @@
 
 `displaymode` is a command-line utility for changing the display resolution on Mac OS X.  It will work on Mac OS X 10.6 or later.
 
+## Installation
+
+## With Xcode
+
+If you have Xcode (or the Xcode command line tools) installed, it's best to compile it yourself.  From the terminal:
+
+1. `git clone https://github.com/p00ya/displaymode.git`
+2. `cd displaymode`
+3. `clang -std=c11 -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c`
+
+## Without Xcode
+
+If you don't have Xcode installed, then you can download the binary (note this is not a zip file) then give the OS permission to run it.  From the terminal:
+
+1. `curl -LO https://github.com/p00ya/displaymode/releases/latest/download/displaymode`
+2. `xattr -d com.apple.quarantine displaymode`
+3. `chmod a+x displaymode`
+4. `codesign -f -s "-" -v displaymode`
+
 ## Usage
 
 To change the resolution of the main display to 1440x900, run the command:
@@ -24,7 +43,7 @@ You can get a list of active displays and available resolutions by running:
 The output will be a table like:
 
 ```
-Display 0:
+Display 0 (MAIN):
 2560 x 1600 @60.0Hz *
 1280 x 800 @60.0Hz
 2880 x 1800 @60.0Hz
