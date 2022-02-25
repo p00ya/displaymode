@@ -153,7 +153,7 @@ const char kUsage[] =
     "      prints version and copyright notice\n";
 
 // Prints a message describing how to invoke the tool on the command line.
-void ShowUsage() {
+void ShowUsage(void) {
     puts(kUsage);
 }
 
@@ -196,7 +196,7 @@ int PrintModes(CGDirectDisplayID display) {
     return EXIT_SUCCESS;
 }
 
-int PrintModesForAllDisplays() {
+int PrintModesForAllDisplays(void) {
     CGDirectDisplayID displays[kMaxDisplays];
     uint32_t num_displays;
     CGError e =
