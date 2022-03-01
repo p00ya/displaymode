@@ -332,7 +332,7 @@ int main(int argc, const char * argv[]) {
             return PrintModesForAllDisplays();
 
         case kOptionVersion:
-            printf("%s\nCopyright 2019-2020 Dean Scarff\n", kProgramVersion);
+            printf("%s\nCopyright 2019-2022 Dean Scarff\n", kProgramVersion);
             return EXIT_SUCCESS;
 
         default:
