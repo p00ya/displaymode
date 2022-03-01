@@ -16,9 +16,13 @@
 name: displaymode
 on:
   push:
+  pull_request:
+    branches:
+      - main
   schedule:
     # Weekly on Saturdays at 02:52.
     - cron: '52 2 * * 6'
+  workflow_dispatch:
 
 jobs:
   build:
