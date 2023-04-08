@@ -15,12 +15,13 @@
 // limitations under the License.
 //
 // Compilation:
-//   clang -std=c11 -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c
+//   clang -std=c11 -lm -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c
 //
 // Usage (to change the resolution to 1440x900):
 //   displaymode t 1440 900
 
 #include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +52,7 @@ enum {
     kArgvOptionIndex = 1,
     kArgvWidthIndex = 2,
     kArgvHeightIndex = 3,
-    kArgvDisplayIndex = 4,
+    kArgvRefreshOrDisplayIndex = 4,
 };
 
 const uint32_t kMaxDisplays = 32;
@@ -62,8 +63,15 @@ struct ParsedArgs {
     const char * literal_option;
     unsigned long width;
     unsigned long height;
+    double refresh_rate;  // 0.0 for any
     uint32_t display_index;
 };
+
+// Returns non-zero if "actual" is acceptable for the given specification.
+int MatchesRefreshRate(double specified, double actual) {
+    static const double kRefreshTolerance = 0.005;
+    return specified == 0.0 || fabs(specified - actual) < kRefreshTolerance;
+}
 
 // Parses the "width height [display]" mode specification.
 void ParseMode(const int argc, const char * argv[],
@@ -91,12 +99,27 @@ void ParseMode(const int argc, const char * argv[],
         parsed_args->option = kOptionInvalidMode;
     }
 
-    if (kArgvDisplayIndex < argc) {
+    const size_t refresh_index = kArgvRefreshOrDisplayIndex;
+    size_t display_index = kArgvRefreshOrDisplayIndex;
+    if (refresh_index < argc && argv[kArgvRefreshOrDisplayIndex][0] == '@') {
+        ++display_index;
+        // Parse the optional refresh rate.
+        const char *s = argv[refresh_index] + 1;
+        char *end = NULL;
+        parsed_args->refresh_rate = strtod(s, &end);
+        if (end == s) {
+            fprintf(stderr, "Error parsing refresh rate: \"%s\"\n",
+                argv[refresh_index]);
+            parsed_args->option = kOptionInvalidMode;
+        }
+    }
+
+    if (display_index < argc) {
         parsed_args->display_index =
-            (uint32_t) strtoul(argv[kArgvDisplayIndex], NULL, 10);
+            (uint32_t) strtoul(argv[display_index], NULL, 10);
         if (errno != 0) {
             fprintf(stderr, "Error parsing display \"%s\": %s\n",
-                    argv[kArgvDisplayIndex], strerror(errno));
+                    argv[display_index], strerror(errno));
             errno = 0;
             parsed_args->option = kOptionInvalidMode;
         }
@@ -143,8 +166,8 @@ const char kUsage[] =
     "Usage:\n\n"
     "  displaymode [options...]\n\n"
     "Options:\n"
-    "  t <width> <height> [display]\n"
-    "      sets the display's resolution to width x height\n\n"
+    "  t <width> <height> [@<refresh>] [display]\n"
+    "      sets the display's width, height and (optionally) refresh rate\n\n"
     "  d\n"
     "      prints available resolutions for each display\n\n"
     "  h\n"
@@ -250,8 +273,10 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args,
             (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, i);
         const size_t width = CGDisplayModeGetWidth(mode);
         const size_t height = CGDisplayModeGetHeight(mode);
+        const double refresh_rate = CGDisplayModeGetRefreshRate(mode);
         if (width == parsed_args->width &&
-            height == parsed_args->height) {
+            height == parsed_args->height &&
+            MatchesRefreshRate(parsed_args->refresh_rate, refresh_rate)) {
             matched_mode = CGDisplayModeRetain(mode);
             break;
         }
@@ -270,8 +295,15 @@ int ConfigureMode(const struct ParsedArgs * parsed_args) {
 
     CGDisplayModeRef mode = GetModeMatching(parsed_args, display);
     if (NULL == mode) {
-        fprintf(stderr, "Could not find a mode for resolution %lux%lu\n",
-                parsed_args->width, parsed_args->height);
+        if (parsed_args->refresh_rate == 0.0) {
+            fprintf(stderr, "Could not find a mode for resolution %lux%lu\n",
+                    parsed_args->width, parsed_args->height);
+        } else {
+            fprintf(stderr, "Could not find a mode for resolution %lux%lu"
+                    " @%.1f\n",
+                    parsed_args->width, parsed_args->height,
+                    parsed_args->refresh_rate);
+        }
         return -1;
     }
 
@@ -279,6 +311,8 @@ int ConfigureMode(const struct ParsedArgs * parsed_args) {
     CGDisplayModeRef original_mode = CGDisplayCopyDisplayMode(display);
     const size_t original_width = CGDisplayModeGetWidth(original_mode);
     const size_t original_height = CGDisplayModeGetHeight(original_mode);
+    const double original_refresh_rate =
+        CGDisplayModeGetRefreshRate(original_mode);
     CGDisplayModeRelease(original_mode);
 
     // Change the resolution.
@@ -297,9 +331,16 @@ int ConfigureMode(const struct ParsedArgs * parsed_args) {
     }
     CGDisplayModeRelease(mode);
 
-    printf("Changed display resolution from %zux%zu to %lux%lu\n",
-           original_width, original_height,
-           parsed_args->width, parsed_args->height);
+    if (parsed_args->refresh_rate == 0.0) {
+        printf("Changed display resolution from %zux%zu to %lux%lu\n",
+               original_width, original_height,
+               parsed_args->width, parsed_args->height);
+    } else {
+        printf("Changed display resolution from %zux%zu @%f to %lux%lu @%.1f\n",
+               original_width, original_height, original_refresh_rate,
+               parsed_args->width, parsed_args->height,
+               parsed_args->refresh_rate);
+    }
     return EXIT_SUCCESS;
 }
 

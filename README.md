@@ -10,7 +10,7 @@ If you have Xcode (or the Xcode command line tools) installed, it's best to comp
 
 1. `git clone https://github.com/p00ya/displaymode.git`
 2. `cd displaymode`
-3. `clang -std=c11 -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c`
+3. `clang -std=c11 -lm -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c`
 
 ## Without Xcode
 
@@ -33,6 +33,12 @@ To change the resolution of the secondary display to 1440x900, run the command:
 
 ```
 ./displaymode t 1440 900 1
+```
+
+You can also specify a particular refresh rate:
+
+```
+./displaymode t 1440 900 @60
 ```
 
 You can get a list of active displays and available resolutions by running:
