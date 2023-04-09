@@ -55,7 +55,7 @@ enum {
     kArgvRefreshOrDisplayIndex = 4,
 };
 
-const uint32_t kMaxDisplays = 32;
+static const uint32_t kMaxDisplays = 32;
 
 // Represents the command-line arguments after parsing.
 struct ParsedArgs {
@@ -68,13 +68,13 @@ struct ParsedArgs {
 };
 
 // Returns non-zero if "actual" is acceptable for the given specification.
-int MatchesRefreshRate(double specified, double actual) {
+static int MatchesRefreshRate(double specified, double actual) {
     static const double kRefreshTolerance = 0.005;
     return specified == 0.0 || fabs(specified - actual) < kRefreshTolerance;
 }
 
 // Parses the "width height [display]" mode specification.
-void ParseMode(const int argc, const char * argv[],
+static void ParseMode(const int argc, const char * argv[],
                struct ParsedArgs * parsed_args) {
     if (argc <= kArgvHeightIndex) {
         parsed_args->option = kOptionInvalidMode;
@@ -133,7 +133,7 @@ void ParseMode(const int argc, const char * argv[],
 }
 
 // Parses the command-line arguments and returns them.
-struct ParsedArgs ParseArgs(int argc, const char * argv[]) {
+static struct ParsedArgs ParseArgs(int argc, const char * argv[]) {
     struct ParsedArgs parsed_args = { 0 };
 
     if (argc <= 1) {
@@ -162,7 +162,7 @@ struct ParsedArgs ParseArgs(int argc, const char * argv[]) {
     return parsed_args;
 }
 
-const char kUsage[] =
+static const char kUsage[] =
     "Usage:\n\n"
     "  displaymode [options...]\n\n"
     "Options:\n"
@@ -176,12 +176,12 @@ const char kUsage[] =
     "      prints version and copyright notice\n";
 
 // Prints a message describing how to invoke the tool on the command line.
-void ShowUsage(void) {
+static void ShowUsage(void) {
     puts(kUsage);
 }
 
 // Prints the resolution and refresh rate for a display mode.
-void PrintMode(CGDisplayModeRef mode) {
+static void PrintMode(CGDisplayModeRef mode) {
     const size_t width = CGDisplayModeGetWidth(mode);
     const size_t height = CGDisplayModeGetHeight(mode);
     const double refresh_rate = CGDisplayModeGetRefreshRate(mode);
@@ -192,7 +192,7 @@ void PrintMode(CGDisplayModeRef mode) {
 }
 
 // Prints all display modes for the main display.  Returns 0 on success.
-int PrintModes(CGDirectDisplayID display) {
+static int PrintModes(CGDirectDisplayID display) {
     CGDisplayModeRef current_mode = CGDisplayCopyDisplayMode(display);
 
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
@@ -219,7 +219,7 @@ int PrintModes(CGDirectDisplayID display) {
     return EXIT_SUCCESS;
 }
 
-int PrintModesForAllDisplays(void) {
+static int PrintModesForAllDisplays(void) {
     CGDirectDisplayID displays[kMaxDisplays];
     uint32_t num_displays;
     CGError e =
@@ -239,7 +239,8 @@ int PrintModesForAllDisplays(void) {
 
 // Returns the display ID (arbitrary integers) corresponding to the given
 // display index (0-indexed).
-CGError GetDisplayID(uint32_t display_index, CGDirectDisplayID * display) {
+static CGError GetDisplayID(uint32_t display_index,
+                            CGDirectDisplayID * display) {
     CGDirectDisplayID displays[kMaxDisplays];
     uint32_t num_displays;
     CGError e =
@@ -260,8 +261,8 @@ CGError GetDisplayID(uint32_t display_index, CGDirectDisplayID * display) {
 // Returns the first mode whose resolution matches the width and height
 // specified in `parsed_args'.  Returns NULL if no modes matched.
 // The caller owns the returned mode.
-CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args,
-                                 const CGDirectDisplayID display) {
+static CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args,
+                                        const CGDirectDisplayID display) {
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, NULL);
     const CFIndex count = CFArrayGetCount(modes);
 
@@ -286,7 +287,7 @@ CGDisplayModeRef GetModeMatching(const struct ParsedArgs * parsed_args,
 }
 
 // Changes the resolution permanently for the user.
-int ConfigureMode(const struct ParsedArgs * parsed_args) {
+static int ConfigureMode(const struct ParsedArgs * parsed_args) {
     CGDirectDisplayID display;
     CGError e;
     if ((e = GetDisplayID(parsed_args->display_index, &display))) {
