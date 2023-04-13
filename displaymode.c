@@ -75,7 +75,7 @@ static int MatchesRefreshRate(double specified, double actual) {
 
 // Parses the "width height [display]" mode specification.
 static void ParseMode(const int argc, const char * argv[],
-               struct ParsedArgs * parsed_args) {
+                      struct ParsedArgs * parsed_args) {
     if (argc <= kArgvHeightIndex) {
         parsed_args->option = kOptionInvalidMode;
         return;
