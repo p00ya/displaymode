@@ -1,6 +1,6 @@
 // displaymode - a utility for changing the display resolution on Mac OS X.
 //
-// Copyright 2019, 2020, 2021, 2022 Dean Scarff.
+// Copyright 2019-2023 Dean Scarff.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
