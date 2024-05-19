@@ -2,7 +2,7 @@
 
 `displaymode` is a command-line utility for changing the display resolution on macOS.  It will work on macOS 10.6 or later.
 
-In recent versions of macOS (e.g. macOS Ventura / v13), it's possible to set the resolution via Apple's built-in System Settings app, obviating the need for this utility.  Firstly, enable System Settings > Dispays > Advanced > "Show resolutions as list", then enable "Show all resolutions".
+In recent versions of macOS (e.g. macOS Ventura / v13), it's possible to set the resolution via Apple's built-in System Settings app, obviating the need for this utility.  Firstly, enable System Settings > Displays > Advanced > "Show resolutions as list", then enable "Show all resolutions".
 
 ## Installation
 
