@@ -17,8 +17,8 @@
 // Compilation:
 //   clang -std=c11 -lm -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c
 //
-// Usage (to change the resolution to 1440x900):
-//   displaymode t 1440 900
+// Usage (to change the resolution to 1920x1080):
+//   displaymode t 1920 1080
 
 #include <errno.h>
 #include <math.h>
