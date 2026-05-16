@@ -14,6 +14,14 @@ If you have Xcode (or the Xcode command line tools) installed, it's best to comp
 2. `cd displaymode`
 3. `clang -std=c11 -lm -framework CoreFoundation -framework CoreGraphics -o displaymode displaymode.c`
 
+If you'd like a release build:
+```bash
+clang -std=c11 -O2 -DNDEBUG -flto -Wl,-dead_strip -Wl,-x \
+  -framework CoreFoundation -framework CoreGraphics -lm \
+  -o displaymode displaymode.c
+strip -x displaymode
+```
+
 ## Without Xcode
 
 If you don't have Xcode installed, then you can download the binary (note this is not a zip file) then give the OS permission to run it.  From the terminal:
