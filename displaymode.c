@@ -69,7 +69,7 @@ struct ParsedArgs {
 
 // Returns non-zero if "actual" is acceptable for the given specification.
 static int MatchesRefreshRate(double specified, double actual) {
-    static const double kRefreshTolerance = 0.005;
+    static const double kRefreshTolerance = 0.05;
     return specified == 0.0 || fabs(specified - actual) < kRefreshTolerance;
 }
 
@@ -187,7 +187,7 @@ static void PrintMode(CGDisplayModeRef mode) {
     const double refresh_rate = CGDisplayModeGetRefreshRate(mode);
     const bool usable_for_desktop =
         CGDisplayModeIsUsableForDesktopGUI(mode);
-    printf("%zu x %zu @%.1fHz%s", width, height, refresh_rate,
+    printf("%zu x %zu @%.10gHz%s", width, height, refresh_rate,
            usable_for_desktop ? "" : " !");
 }
 
@@ -298,12 +298,12 @@ static int ConfigureMode(const struct ParsedArgs * parsed_args) {
     if (NULL == mode) {
         if (parsed_args->refresh_rate == 0.0) {
             fprintf(stderr, "Could not find a mode for resolution %lux%lu\n",
-                    parsed_args->width, parsed_args->height);
+            parsed_args->width, parsed_args->height);
         } else {
             fprintf(stderr, "Could not find a mode for resolution %lux%lu"
-                    " @%.1f\n",
-                    parsed_args->width, parsed_args->height,
-                    parsed_args->refresh_rate);
+            " @%.3f\n",
+            parsed_args->width, parsed_args->height,
+            parsed_args->refresh_rate);
         }
         return -1;
     }
